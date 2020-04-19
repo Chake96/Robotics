@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1062
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MagicCardboardBox", "MagicCardboardBox.vcxproj", "{ACFA6766-C78B-4CC8-A3A2-A188D7D67A67}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lcd_keyboard_test", "..\lcd_keyboard_test\lcd_keyboard_test.vcxproj", "{52ED9657-FEF7-4D47-8438-156010CA4F41}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "..\BasicLCDTest\BasicLCDTest.vcxproj", "{6D0779BB-E4BF-4CEE-BC87-45A2B78DDF4B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example1_BasicReadings", "..\libraries\SparkFun_AS726X\examples\Example1_BasicReadings\Example1_BasicReadings.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SparkFun_AS726X-1.0.4", "Libraries\SparkFun_AS726X\1.0.4\SparkFun_AS726X\SparkFun_AS726X-1.0.4.vcxitems", "{B1FD9919-912F-4B2D-9C93-1B777B06F515}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Libraries\SparkFun_AS726X\1.0.4\SparkFun_AS726X\SparkFun_AS726X-1.0.4.vcxitems*{acfa6766-c78b-4cc8-a3a2-a188d7d67a67}*SharedItemsImports = 4
+		Libraries\SparkFun_AS726X\1.0.4\SparkFun_AS726X\SparkFun_AS726X-1.0.4.vcxitems*{b1fd9919-912f-4b2d-9c93-1b777b06f515}*SharedItemsImports = 9
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ACFA6766-C78B-4CC8-A3A2-A188D7D67A67}.Debug|x86.ActiveCfg = Debug|Win32
+		{ACFA6766-C78B-4CC8-A3A2-A188D7D67A67}.Debug|x86.Build.0 = Debug|Win32
+		{ACFA6766-C78B-4CC8-A3A2-A188D7D67A67}.Release|x86.ActiveCfg = Release|Win32
+		{ACFA6766-C78B-4CC8-A3A2-A188D7D67A67}.Release|x86.Build.0 = Release|Win32
+		{52ED9657-FEF7-4D47-8438-156010CA4F41}.Debug|x86.ActiveCfg = Debug|Win32
+		{52ED9657-FEF7-4D47-8438-156010CA4F41}.Debug|x86.Build.0 = Debug|Win32
+		{52ED9657-FEF7-4D47-8438-156010CA4F41}.Release|x86.ActiveCfg = Release|Win32
+		{52ED9657-FEF7-4D47-8438-156010CA4F41}.Release|x86.Build.0 = Release|Win32
+		{6D0779BB-E4BF-4CEE-BC87-45A2B78DDF4B}.Debug|x86.ActiveCfg = Debug|Win32
+		{6D0779BB-E4BF-4CEE-BC87-45A2B78DDF4B}.Debug|x86.Build.0 = Debug|Win32
+		{6D0779BB-E4BF-4CEE-BC87-45A2B78DDF4B}.Release|x86.ActiveCfg = Release|Win32
+		{6D0779BB-E4BF-4CEE-BC87-45A2B78DDF4B}.Release|x86.Build.0 = Release|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.ActiveCfg = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.Build.0 = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {24D878EA-A476-4A1B-B163-23282EB68C93}
+	EndGlobalSection
+EndGlobal
