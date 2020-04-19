@@ -11,7 +11,6 @@
 #include <wire.h>
 
 
-
 /*General Environment Variables*/
 #define DEBUG 1 //true if debugging
 #define SERIAL_BAUD 9600
@@ -29,15 +28,16 @@ constexpr unsigned int pin_d7 = 7;
 constexpr unsigned int pin_BL = 10;
 
 //analog read values
-constexpr unsigned int right_key = 0;
-constexpr unsigned int left_key= 408;
-constexpr unsigned int up_key = 98;
-constexpr unsigned int down_key = 256;
-constexpr unsigned int select_key = 639;
+constexpr unsigned int right_key = 0; //0 on 2.56
+constexpr unsigned int left_key= 408; //775 on 2.56
+constexpr unsigned int up_key = 98; //188 on 2.56v
+constexpr unsigned int down_key = 256; //484 on 2.56
+constexpr unsigned int select_key = 639; //1023 on 2.56
 
 //lcd properties
 constexpr unsigned int ROW_WIDTH = 17;
 constexpr unsigned int COL_HEIGH = 2;
+constexpr char clear_buff[17] = {' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
 
 LiquidCrystal lcd(pin_RS, pin_EN, pin_d4, pin_d5, pin_d6, pin_d7);
 
@@ -50,7 +50,6 @@ AS726X ams;
 
 void setup()
 {
-
 	if (DEBUG) {
 		Serial.begin(SERIAL_BAUD);
 		while (!Serial)
@@ -105,7 +104,7 @@ constexpr char menu[max_menu_y][max_menu_x] = {
 
 void loop()
 {
-	auto menu_x = 0, menu_y = 0;
+	auto menu_x = 2, menu_y = 1;
 
 	/*Menu Key
 		0: display all of the sensors data on screen
@@ -124,13 +123,17 @@ void loop()
 			D: Display Device Information
 	*/
 	int last_key = -1;
+	bool update_top_row = false, update_bot_row = false;
 	while (1) {
 		menu_x %= max_menu_x;
 		menu_y %= max_menu_y;
 		int key_press = -1;
 		key_press = analogRead(pin_anal);
+		
 		if (DEBUG)
 			Serial.println("Menu:" + String(menu_x) + String(menu_y) + " Key Press:" + String(key_press));
+
+		//take user input
 		if (key_press <= right_key) {
 			menu_x += 1;
 		}
@@ -147,109 +150,104 @@ void loop()
 			//do nothing on select or no press
 		}
 		delay(200);
-		String buffer = "";
+
+		//apply user input to lcd display
+		//two buffers for lcd display
+		String top_buff = "";
+		String bot_buff = "";
+
 		switch (menu_y) {
 			case 2: //MPU6050 Sensor
-				menu_x %= 4;
-				lcd.home();
-				lcd.println("MPU6050 Sensor: ");
-				delay(500);
-				lcd.setCursor(0, 1);
-				
-				//mpu sensor events
 				sensors_event_t accel, gyro, temp;
 				mpu.getEvent(&accel, &gyro, &temp);
-				if (DEBUG) {
-					Serial.println(menu[menu_y][menu_x]);
+				switch (menu[menu_y][menu_x]) {
+					case '0':
+						break;
+					case 'A':
+						top_buff = "Accelerometer:";
+						bot_buff = "X:" + String(accel.acceleration.x, DEC) +
+									" Y:" + String(accel.acceleration.y,DEC) + 
+									" Z:" + String(accel.acceleration.y, DEC);
+						break;
+					case 'G':
+						top_buff = "Gyroscope:";
+						bot_buff = "X:" + String(gyro.gyro.x, DEC) +
+							" Y:" + String(gyro.gyro.y, DEC) +
+							" Z:" + String(gyro.gyro.y, DEC);
+						break;
+					default: //Temperature
+						top_buff = "Temperature:";
+						bot_buff = String(temp.temperature, DEC);
+						break;
 				}
-				else if (menu[menu_y][menu_x] == '0') {
-					lcd.println(
-						"A:" + String(accel.acceleration.x) + ',' + String(accel.acceleration.y) + "   "
-					);
-				}
-				else if (menu[menu_y][menu_x] == 'A') {
-					lcd.clear();
-					lcd.println(
-						"A:[" + String(accel.acceleration.x) + ',' + String(accel.acceleration.y) + ','+ String(accel.acceleration.z)+']'
-					);
-				}
-				else if (menu[menu_y][menu_x] == 'G') {
-					lcd.println(
-						"G:" + String(gyro.gyro.x) + ',' + String(gyro.gyro.y) + ',' + String(gyro.gyro.z)
-					);
-				}
-				else { //temperature
-					lcd.println(
-						"T:" + String(temp.temperature)
-					);
-				}
-				delay(500);
 				break;
-			
 			case 1: //AS7263 Sensor
-				lcd.home();
-				lcd.println("AS7263 Sensor:  ");
-				lcd.setCursor(0, 1);
-
-				if (menu[menu_y][menu_x] == 'T') {
-					buffer = "T(F):";
-					float temper = ams.getTemperatureF();
-					buffer += String(temper, 1);
+				ams.takeMeasurements();
+				char headers[7] = {'R', 'G', 'B', 'V', 'Y', 'O', 'T'};
+				int head_vals[7] = {ams.getRed(), ams.getBlue(), ams.getGreen(), ams.getViolet(), ams.getYellow(),
+					ams.getOrange(), (int) ams.getTemperatureF()};
+				switch (menu[menu_y][menu_x]) {
+					case '0':
+						break;
+					case 'C':
+						for (auto i = 0; i < 3; i++) {
+							top_buff += headers[i] + String(head_vals[i], DEC) + ' ';
+							bot_buff += headers[i + 3] + String(head_vals[i + 3], DEC) + ' ';
+						}
+						break;
+					case '3':
+						top_buff = "RGB Values";
+						for (auto i = 0; i < 3; i++) {
+							bot_buff += headers[i] + String(head_vals[i], DEC) + ' ';
+						}
+						break;
+					case '6':
+						bot_buff = "RGB Values";
+						for (auto i = 3; i < 6; i++) {
+							bot_buff += headers[i] + String(head_vals[i], DEC) + ' ';
+						}
+						break;
+					default: //temperature
+						top_buff = "Temperature:";
+						bot_buff = "fahrenheit:" + String(head_vals[6], DEC);
+						break;
 				}
-				else if (menu[menu_y][menu_x] == 'C') {
-					lcd.home();
-					lcd.println("                ");
-					lcd.setCursor(0,0);
-					buffer += "V:" + String(ams.getViolet(), DEC);
-					buffer += " B:" + String(ams.getBlue(), DEC);
-					buffer += " G:" + String(ams.getGreen(), DEC);
-					buffer += " Y:" + String(ams.getYellow(), DEC);
-					lcd.println(buffer);
-					lcd.setCursor(0, 1);
-					buffer = "";
-					buffer += "O:" + String(ams.getOrange(), DEC);
-					buffer += " R:" + String(ams.getRed(), DEC);
-					lcd.println(buffer);
-					delay(2000);
-				}
-				else if (menu[menu_y][menu_x] == '3') {
-					lcd.clear();
-					lcd.println("Red, Green, Blue");
-					lcd.setCursor(0, 1);
-					buffer = String(ams.getRed(), DEC) + ' ' +  String(ams.getGreen(), DEC) + ' ' + String(ams.getBlue(), DEC);
-					lcd.println(buffer);
-				}
-				else {//Violet, yellow, orange
-					lcd.clear();
-					lcd.println("VT, YELO, ORG   ");
-					lcd.setCursor(0, 1);
-					buffer = String(ams.getRed(), DEC) + ' ' + String(ams.getGreen(), DEC) + ' ' +  String(ams.getBlue(), DEC);
-					lcd.println(buffer);
-				}
-				if (DEBUG)
-					Serial.println("Menu: " + menu[menu_y][menu_x] + ' ' + buffer);
-				/*for (auto i = buffer.length(); i < row_width; i++)
-					buffer += ' ';
-				lcd.println(buffer);*/
-				delay(500);
+				
 				break;
-
 			default: //settings menu
-				lcd.home();   
-				lcd.println("Settings Menu   ");
-				lcd.setCursor(0, 1);
-				if (menu[menu_y][menu_x] == 'A') {
-
-				}
-				else if (menu[menu_y][menu_x] == 'R') {
-
-				}
-				else { //device info
-
-				}
 				break;
 		}
+		update_top_row = true;
+		update_bot_row = true;
+		//update lcd diplay
+		if (update_top_row) {
+			if (DEBUG)
+				Serial.println("Top:" + top_buff);
+
+			lcd.setCursor(0, 0);
+			lcd.println(clear_buff);
+			lcd.home();
+			for (auto i = top_buff.length(); i < ROW_WIDTH; i++)
+				top_buff += ' ';
+			lcd.println(top_buff);
+		}
+		if (update_bot_row) {
+			if (DEBUG)
+				Serial.println("Bottom:" + bot_buff);
+			lcd.setCursor(0, 1);
+			lcd.println(clear_buff);
+			for (auto i = bot_buff.length(); i < ROW_WIDTH; i++)
+				bot_buff += ' ';
+			lcd.setCursor(0, 1);
+			lcd.println(bot_buff);
+		}
+
 		last_key = key_press;
-		delay(50);
+		int wait = analogRead(0);
+		while (wait >= 1000 || wait < 600) {
+			wait = analogRead(0);
+			delay(10);
+		}
+		delay(100);
 	}
 }
